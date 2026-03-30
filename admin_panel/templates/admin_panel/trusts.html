@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% block title %}NHS Trusts{% endblock %}
+{% block page_title %}NHS Trusts{% endblock %}
+{% block nav_admin_trusts %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left"><h1>NHS Trusts</h1><p>{{ trusts.count }} trust{{ trusts.count|pluralize }} registered</p></div>
+</div>
+<div class="card">
+  {% if trusts %}
+  <table class="table">
+    <thead><tr><th>Trust Name</th><th>Location</th><th>Contact Email</th><th>Phone</th></tr></thead>
+    <tbody>
+      {% for trust in trusts %}
+      <tr>
+        <td style="font-weight:600;">{{ trust.name }}</td>
+        <td>{{ trust.location }}</td>
+        <td>{{ trust.contact_email|default:"—" }}</td>
+        <td>{{ trust.contact_phone|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state"><h3>No trusts registered</h3><p>Add NHS Trusts via the admin panel</p></div>
+  {% endif %}
+</div>
+{% endblock %}

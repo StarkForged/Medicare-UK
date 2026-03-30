@@ -1,0 +1,126 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ worker.get_full_name }}{% endblock %}
+{% block page_title %}Worker Profile{% endblock %}
+{% block nav_workers %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>{{ worker.get_full_name }}</h1>
+    <p>{{ worker.role }} · NHS Band {{ worker.nhs_band }}</p>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="{% url 'compliance:document_add' worker.pk %}" class="btn btn-outline">Upload Document</a>
+    <a href="{% url 'workers:edit' worker.pk %}" class="btn btn-navy">Edit Profile</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:280px 1fr;gap:18px;">
+  <!-- Sidebar card -->
+  <div>
+    <div class="card">
+      <div style="padding:24px 20px 18px;text-align:center;border-bottom:1px solid var(--border);">
+        <div style="width:72px;height:72px;border-radius:50%;background:var(--teal-light);color:var(--teal-text);font-size:22px;font-weight:600;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">{{ worker.get_initials }}</div>
+        <div style="font-family:'Fraunces',serif;font-size:17px;font-weight:600;">{{ worker.get_full_name }}</div>
+        <div style="font-size:12.5px;color:var(--text2);margin-top:3px;">{{ worker.role }}</div>
+        <div style="margin-top:8px;">
+          {% if worker.status == 'available' %}<span class="badge b-available">● Available</span>
+          {% elif worker.status == 'on_shift' %}<span class="badge b-onshift">● On Shift</span>
+          {% else %}<span class="badge b-off">Off</span>{% endif %}
+        </div>
+      </div>
+      <div style="padding:8px 0;">
+        {% with details=worker %}
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border);font-size:12.5px;">
+          <span style="color:var(--text3);width:90px;flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding-top:1px;">NMC Pin</span>
+          <span style="font-family:monospace;">{{ worker.nmc_pin }}</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border);font-size:12.5px;">
+          <span style="color:var(--text3);width:90px;flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding-top:1px;">Band</span>
+          <span>NHS Band {{ worker.nhs_band }}</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border);font-size:12.5px;">
+          <span style="color:var(--text3);width:90px;flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding-top:1px;">Phone</span>
+          <span>{{ worker.phone }}</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border);font-size:12.5px;">
+          <span style="color:var(--text3);width:90px;flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding-top:1px;">Email</span>
+          <span style="word-break:break-all;">{{ worker.email }}</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 18px;font-size:12.5px;">
+          <span style="color:var(--text3);width:90px;flex-shrink:0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding-top:1px;">RTW</span>
+          <span>{{ worker.get_right_to_work_display }}</span>
+        </div>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <!-- Skills -->
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Core Skills</span></div>
+      <div class="card-pad">
+        {% for skill in worker.get_skills_list %}
+        <span class="skill-pill">{{ skill }}</span>
+        {% empty %}
+        <span style="color:var(--text3);font-size:13px;">No skills recorded</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">Compliance Documents</span>
+        <a href="{% url 'compliance:document_add' worker.pk %}" class="btn btn-ghost btn-xs">Upload</a>
+      </div>
+      <div class="card-pad">
+        {% for doc in worker.documents.all %}
+        <div class="doc-row">
+          <div class="doc-icon" style="background:var(--{% if doc.status == 'valid' %}green{% elif doc.status == 'expiring' %}amber{% else %}red{% endif %}-light);">
+            <svg viewBox="0 0 24 24" fill="var(--{% if doc.status == 'valid' %}green{% elif doc.status == 'expiring' %}amber{% else %}red{% endif %}-text)"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+          </div>
+          <div class="doc-info">
+            <div class="doc-name">{{ doc.title }}</div>
+            <div class="doc-meta">Issued: {{ doc.issued_date|date:"d M Y" }}{% if doc.issued_by %} · {{ doc.issued_by }}{% endif %}</div>
+          </div>
+          <div style="text-align:right;">
+            {% if doc.expiry_date %}<div class="doc-expiry {{ doc.status }}">Expires {{ doc.expiry_date|date:"d M Y" }}</div>{% endif %}
+            <span class="badge b-{{ doc.status }}" style="margin-top:3px;">{{ doc.get_status_display }}</span>
+          </div>
+          {% if doc.file %}<a href="{{ doc.file.url }}" class="btn btn-ghost btn-xs" target="_blank">View</a>{% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-state" style="padding:24px;">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+          <h3>No documents yet</h3>
+          <p>Upload DBS, NMC certificate, and other compliance docs</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Assignments -->
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Shift History</span></div>
+      <table class="table">
+        <thead><tr><th>Role</th><th>Trust</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for a in worker.assignments.all|slice:":5" %}
+          <tr>
+            <td><div class="role-cell">{{ a.shift.role }}</div></td>
+            <td>{{ a.shift.trust.name }}</td>
+            <td>{{ a.shift.date|date:"d M Y" }}</td>
+            <td><span class="badge b-{{ a.status }}">{{ a.get_status_display }}</span></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px;">No shifts completed yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

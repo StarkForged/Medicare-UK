@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+{% block title %}Approvals{% endblock %}
+{% block page_title %}Shift Approvals{% endblock %}
+{% block nav_approvals %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Shift Approvals</h1>
+    <p>{{ assignments.count }} assignment{{ assignments.count|pluralize }} awaiting your decision</p>
+  </div>
+</div>
+
+{% if assignments %}
+{% for a in assignments %}
+<div class="appr-card">
+  <div class="staff-ava" style="background:var(--teal-light);color:var(--teal-text);width:42px;height:42px;border-radius:50%;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">{{ a.worker.get_initials }}</div>
+  <div style="flex:1;">
+    <div style="font-weight:600;font-size:13.5px;">{{ a.worker.get_full_name }}</div>
+    <div style="font-size:12px;color:var(--text3);">{{ a.worker.role }} · Band {{ a.worker.nhs_band }} · NMC: {{ a.worker.nmc_pin }}</div>
+  </div>
+  <div style="flex:1;">
+    <div style="font-weight:600;font-size:13px;">{{ a.shift.role }}</div>
+    <div style="font-size:12px;color:var(--text3);">{{ a.shift.date|date:"D d M Y" }} · {{ a.shift.start_time|time:"H:i" }}–{{ a.shift.end_time|time:"H:i" }}</div>
+  </div>
+  <div style="text-align:right;margin-right:8px;">
+    <div style="font-weight:600;color:var(--teal-text);">£{{ a.shift.pay_rate }}/hr</div>
+    <div style="font-size:11.5px;color:var(--text3);">{{ a.shift.get_duration_hours }}h shift</div>
+  </div>
+  <div style="display:flex;gap:6px;flex-shrink:0;">
+    <form method="post" action="{% url 'trust:reject' a.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+    </form>
+    <form method="post" action="{% url 'trust:approve' a.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary btn-sm">✓ Approve</button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+    <h3>All caught up!</h3>
+    <p>No pending approvals at this time</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

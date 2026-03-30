@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+{% block title %}Shift Management{% endblock %}
+{% block page_title %}Shift Management{% endblock %}
+{% block nav_trust_shifts %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Shift Management</h1>
+    <p>All shifts posted by your trust</p>
+  </div>
+  <a href="{% url 'shifts:create' %}" class="btn btn-primary">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Post New Shift
+  </a>
+</div>
+<div class="card">
+  {% if shifts %}
+  <table class="table">
+    <thead><tr><th>Role</th><th>Department</th><th>Date</th><th>Time</th><th>Pay</th><th>Urgency</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for shift in shifts %}
+      <tr>
+        <td><div class="role-cell">{{ shift.role }}</div><div class="role-dept">Band {{ shift.nhs_band }}</div></td>
+        <td>{{ shift.department }}</td>
+        <td>{{ shift.date|date:"d M Y" }}</td>
+        <td>{{ shift.start_time|time:"H:i" }}–{{ shift.end_time|time:"H:i" }}</td>
+        <td style="font-weight:600;">£{{ shift.pay_rate }}/hr</td>
+        <td>
+          {% if shift.urgency == 'high' %}<span class="badge b-urgent">Urgent</span>
+          {% elif shift.urgency == 'medium' %}<span class="badge b-expiring">Medium</span>
+          {% else %}<span class="badge b-available">Low</span>{% endif %}
+        </td>
+        <td><span class="badge b-{{ shift.status }}">{{ shift.get_status_display }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    <h3>No shifts posted</h3>
+    <p>Post your first shift to start receiving workers from agencies</p>
+    <a href="{% url 'shifts:create' %}" class="btn btn-primary" style="margin-top:12px;">Post Shift</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

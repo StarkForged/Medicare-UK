@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% block title %}User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block nav_admin_users %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left"><h1>Users</h1><p>{{ users.count }} registered user{{ users.count|pluralize }}</p></div>
+</div>
+<div class="card">
+  <table class="table">
+    <thead><tr><th>User</th><th>Role</th><th>Organisation</th><th>Email</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>
+          <div class="staff-name-cell">
+            <div class="staff-ava" style="background:var(--teal-light);color:var(--teal-text);">{{ user.get_initials }}</div>
+            <div><div class="staff-name">{{ user.get_full_name|default:user.username }}</div><div class="staff-reg">@{{ user.username }}</div></div>
+          </div>
+        </td>
+        <td><span class="badge {% if user.role == 'admin' %}b-pending{% elif user.role == 'trust' %}b-progress{% else %}b-available{% endif %}">{{ user.get_role_display }}</span></td>
+        <td>{{ user.organisation|default:"—" }}</td>
+        <td style="font-size:12px;color:var(--text2);">{{ user.email }}</td>
+        <td>{% if user.is_active %}<span class="badge b-filled">Active</span>{% else %}<span class="badge b-expired">Inactive</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

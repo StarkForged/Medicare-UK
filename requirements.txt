@@ -1,0 +1,29 @@
+# ============================================================
+# Medicare UK — Python Dependencies
+# Tested with: Python 3.10, 3.11, 3.12
+# ============================================================
+
+# --- Core Framework ---
+Django==5.2                        # LTS release — supported until April 2028
+
+# --- Environment / Config ---
+python-decouple==3.8               # Reads SECRET_KEY etc. from .env file
+
+# --- Image handling (for avatar uploads) ---
+Pillow==11.2.1                     # Python 3.12 compatible
+
+# --- Forms & UI helpers ---
+django-crispy-forms==2.3           # Renders Django forms with Bootstrap styling
+crispy-bootstrap5==2025.4          # Bootstrap 5 template pack for crispy-forms
+django-widget-tweaks==1.5.0        # Add CSS classes to form fields in templates
+
+# --- Static files (production) ---
+whitenoise==6.9.0                  # Serve static files without a separate web server
+
+# --- Production server ---
+gunicorn==23.0.0                   # WSGI server for deploying on Linux
+
+# --- Database (PostgreSQL — for production) ---
+# SQLite is used by default in development (no extra package needed)
+# Uncomment this when deploying to a server with PostgreSQL:
+# psycopg2-binary==2.9.10          # PostgreSQL adapter — 2.9.10 has Python 3.12 wheels

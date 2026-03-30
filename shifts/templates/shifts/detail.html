@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+{% block title %}Shift Detail{% endblock %}
+{% block page_title %}Shift Detail{% endblock %}
+{% block nav_shifts %}active{% endblock %}
+
+{% block content %}
+<div style="max-width:760px;">
+
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>{{ shift.role }}</h1>
+      <p>{{ shift.trust.name }} · {{ shift.department }}</p>
+    </div>
+    <a href="{% url 'shifts:list' %}" class="btn btn-outline">← Back to Shifts</a>
+  </div>
+
+  <div class="grid-2" style="gap:16px;margin-bottom:16px;">
+
+    <!-- Shift information card -->
+    <div class="card card-pad">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+        Shift Info
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Date</div>
+          <div style="font-weight:600;">{{ shift.date|date:"D d M Y" }}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Time</div>
+          <div style="font-weight:600;">{{ shift.start_time|time:"H:i" }} – {{ shift.end_time|time:"H:i" }}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Duration</div>
+          <div style="font-weight:600;">{{ shift.get_duration_hours }} hours</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Pay Rate</div>
+          <div style="font-weight:600;color:var(--teal-text);">£{{ shift.pay_rate }}/hr</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">NHS Band</div>
+          <div style="font-weight:600;">Band {{ shift.nhs_band }}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Status</div>
+          <span class="badge b-{{ shift.status }}">{{ shift.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Requirements card -->
+    <div class="card card-pad">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">
+        Requirements
+      </div>
+
+      {# BUG FIX: replaced shift.required_skills.split:"," (invalid syntax)
+         with shift.get_skills_list which returns a proper Python list #}
+      {% if shift.get_skills_list %}
+      <div style="margin-bottom:12px;">
+        {% for skill in shift.get_skills_list %}
+          <span class="skill-pill">{{ skill }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if shift.notes %}
+        <p style="font-size:13px;color:var(--text2);">{{ shift.notes }}</p>
+      {% endif %}
+
+      <div style="margin-top:12px;">
+        <span class="badge {% if shift.urgency == 'high' %}b-urgent{% elif shift.urgency == 'medium' %}b-expiring{% else %}b-available{% endif %}">
+          Urgency: {{ shift.get_urgency_display }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign a worker to this shift -->
+  <div class="card card-pad" style="text-align:center;padding:24px;">
+    <p style="color:var(--text2);margin-bottom:14px;">
+      Assign one of your available workers to this shift
+    </p>
+    <a href="{% url 'shifts:assign' shift.pk %}" class="btn btn-primary">
+      Assign a Worker →
+    </a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% block title %}Platform Overview{% endblock %}
+{% block page_title %}Platform Overview{% endblock %}
+{% block nav_admin_overview %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Platform Overview</h1>
+    <p>System-wide metrics and management</p>
+  </div>
+</div>
+<div class="stats-row">
+  <div class="stat"><div class="stat-label">Total Workers</div><div class="stat-val" style="color:var(--teal);">{{ total_workers }}</div><div class="stat-sub">Registered on platform</div></div>
+  <div class="stat"><div class="stat-label">Total Shifts</div><div class="stat-val" style="color:var(--blue);">{{ total_shifts }}</div><div class="stat-sub">Posted to date</div></div>
+  <div class="stat"><div class="stat-label">NHS Trusts</div><div class="stat-val" style="color:var(--navy);">{{ total_trusts }}</div><div class="stat-sub">On platform</div></div>
+  <div class="stat"><div class="stat-label">Platform Users</div><div class="stat-val" style="color:var(--amber);">{{ total_users }}</div><div class="stat-sub">Active accounts</div></div>
+</div>
+<div class="grid-2" style="gap:16px;">
+  <div class="card"><div class="card-hd"><span class="card-title">Open Shifts</span></div><div class="card-pad" style="font-family:'Fraunces',serif;font-size:36px;font-weight:600;color:var(--amber);">{{ open_shifts }}<div style="font-size:13px;color:var(--text3);font-family:'Instrument Sans',sans-serif;margin-top:4px;">shifts awaiting fill</div></div></div>
+  <div class="card"><div class="card-hd"><span class="card-title">Pending Assignments</span></div><div class="card-pad" style="font-family:'Fraunces',serif;font-size:36px;font-weight:600;color:var(--blue);">{{ pending_assignments }}<div style="font-size:13px;color:var(--text3);font-family:'Instrument Sans',sans-serif;margin-top:4px;">awaiting trust approval</div></div></div>
+</div>
+{% endblock %}

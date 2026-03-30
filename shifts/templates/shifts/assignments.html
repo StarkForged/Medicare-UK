@@ -1,0 +1,74 @@
+{% extends 'core/base.html' %}
+{% block title %}Assignments{% endblock %}
+{% block page_title %}Assignments{% endblock %}
+{% block nav_assignments %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Assignments</h1>
+    <p>Workers you have assigned to NHS Trust shifts</p>
+  </div>
+</div>
+
+<div class="card">
+  {% if assignments %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Worker</th>
+        <th>Shift</th>
+        <th>Trust</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Assigned</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assignment in assignments %}
+      <tr>
+        <td>
+          <div class="staff-name-cell">
+            <div class="staff-ava" style="background:var(--teal-light);color:var(--teal-text);">
+              {{ assignment.worker.get_initials }}
+            </div>
+            <div>
+              <div class="staff-name">{{ assignment.worker.get_full_name }}</div>
+              <div class="staff-reg">Band {{ assignment.worker.nhs_band }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="role-cell">{{ assignment.shift.role }}</div>
+          <div class="role-dept">{{ assignment.shift.department }}</div>
+        </td>
+        <td>{{ assignment.shift.trust.name }}</td>
+        <td>
+          {{ assignment.shift.date|date:"d M Y" }}<br>
+          <span style="color:var(--text3);font-size:12px;">
+            {{ assignment.shift.start_time|time:"H:i" }}–{{ assignment.shift.end_time|time:"H:i" }}
+          </span>
+        </td>
+        <td>
+          <span class="badge b-{{ assignment.status }}">
+            {{ assignment.get_status_display }}
+          </span>
+        </td>
+        <td style="font-size:12px;color:var(--text3);">
+          {{ assignment.assigned_at|date:"d M Y" }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <h3>No assignments yet</h3>
+    <p>Go to Available Shifts and assign your workers to open shifts</p>
+    <a href="{% url 'shifts:list' %}" class="btn btn-primary" style="margin-top:12px;">View Available Shifts</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

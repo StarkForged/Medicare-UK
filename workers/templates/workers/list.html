@@ -1,0 +1,90 @@
+{% extends 'core/base.html' %}
+{% block title %}Workers{% endblock %}
+{% block page_title %}Workers{% endblock %}
+{% block nav_workers %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Workers</h1>
+    <p>{{ workers.count }} healthcare professional{{ workers.count|pluralize }} on your roster</p>
+  </div>
+  <a href="{% url 'workers:add' %}" class="btn btn-primary">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Add Worker
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-hd">
+    <span class="card-title">All Workers</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select class="filter-sel"><option>All Bands</option><option>Band 2</option><option>Band 3</option><option>Band 5</option><option>Band 6</option><option>Band 7</option></select>
+      <select class="filter-sel"><option>All Status</option><option>Available</option><option>On Shift</option><option>Off</option></select>
+    </div>
+  </div>
+  {% if workers %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Worker</th>
+        <th>Role / Band</th>
+        <th>NMC Pin</th>
+        <th>Skills</th>
+        <th>Status</th>
+        <th>Rating</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for worker in workers %}
+      <tr>
+        <td>
+          <div class="staff-name-cell">
+            <div class="staff-ava" style="background:var(--teal-light);color:var(--teal-text);">{{ worker.get_initials }}</div>
+            <div>
+              <div class="staff-name">{{ worker.get_full_name }}</div>
+              <div class="staff-reg">{{ worker.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="role-cell">{{ worker.role }}</div>
+          <div class="role-dept">NHS Band {{ worker.nhs_band }}</div>
+        </td>
+        <td style="font-family:monospace;font-size:12px;color:var(--text3);">{{ worker.nmc_pin }}</td>
+        <td>
+          {% for skill in worker.get_skills_list|slice:":3" %}
+          <span class="skill-pill">{{ skill }}</span>
+          {% endfor %}
+        </td>
+        <td>
+          {% if worker.status == 'available' %}
+          <span class="badge b-available">● Available</span>
+          {% elif worker.status == 'on_shift' %}
+          <span class="badge b-onshift">● On Shift</span>
+          {% else %}
+          <span class="badge b-off">Off</span>
+          {% endif %}
+        </td>
+        <td><span class="stars-sm">{% for i in "12345" %}{% if forloop.counter <= worker.rating %}★{% else %}☆{% endif %}{% endfor %}</span></td>
+        <td>
+          <div style="display:flex;gap:4px;">
+            <a href="{% url 'workers:detail' worker.pk %}" class="btn btn-ghost btn-xs">View</a>
+            <a href="{% url 'workers:edit' worker.pk %}" class="btn btn-ghost btn-xs">Edit</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+    <h3>No workers yet</h3>
+    <p>Add your first healthcare professional to get started</p>
+    <a href="{% url 'workers:add' %}" class="btn btn-primary" style="margin-top:12px;">Add Worker</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,254 @@
+# Medicare UK — Healthcare Nursing Management System
+
+A full-featured Django application for managing NHS agency staffing, shift assignments, worker compliance, and trust approvals.
+
+---
+
+## Project Structure
+
+```
+medicare_uk/                          ← Project root
+│
+├── manage.py                         ← Django management entry point
+├── requirements.txt                  ← Python dependencies
+├── .env.example                      ← Environment variable template
+├── .gitignore
+├── README.md
+│
+├── medicare_uk/                      ← Django project config package
+│   ├── __init__.py
+│   ├── settings.py                   ← All settings (reads from .env)
+│   ├── urls.py                       ← Root URL configuration
+│   ├── wsgi.py                       ← WSGI server entry point
+│   └── asgi.py                       ← ASGI server entry point
+│
+├── accounts/                         ← Custom user authentication
+│   ├── models.py                     ← Custom User model (role-based)
+│   ├── views.py                      ← Login, logout, register
+│   ├── forms.py                      ← Auth forms
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   └── templates/accounts/
+│       ├── login.html
+│       └── register.html
+│
+├── core/                             ← Shared layout, dashboard, base templates
+│   ├── models.py                     ← (empty — no core models needed)
+│   ├── views.py                      ← Dashboard routing by role
+│   ├── urls.py
+│   ├── apps.py
+│   ├── context_processors.py         ← Global context (notifications)
+│   ├── migrations/
+│   ├── management/commands/
+│   │   └── seed_data.py              ← Dev data seeder
+│   ├── templatetags/
+│   │   └── medicare_tags.py          ← Custom template filters
+│   ├── static/core/
+│   │   ├── css/main.css              ← Global stylesheet
+│   │   └── js/main.js                ← Global JS
+│   └── templates/core/
+│       ├── base.html                 ← Master layout (sidebar + topbar)
+│       ├── dashboard_agency.html
+│       └── dashboard_trust.html
+│
+├── shifts/                           ← Shift posting, assignments
+│   ├── models.py                     ← NHSTrust, Shift, Assignment
+│   ├── views.py
+│   ├── forms.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   └── templates/shifts/
+│       ├── list.html
+│       ├── detail.html
+│       ├── form.html
+│       └── assignments.html
+│
+├── workers/                          ← Healthcare worker roster
+│   ├── models.py                     ← Worker model
+│   ├── views.py
+│   ├── forms.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   └── templates/workers/
+│       ├── list.html
+│       ├── detail.html
+│       └── form.html
+│
+├── compliance/                       ← Document tracking (DBS, NMC, etc.)
+│   ├── models.py                     ← ComplianceDocument model
+│   ├── views.py
+│   ├── forms.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   └── templates/compliance/
+│       ├── overview.html
+│       └── form.html
+│
+├── trust/                            ← NHS Trust portal (approvals)
+│   ├── models.py                     ← (uses shifts models)
+│   ├── views.py
+│   ├── urls.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── migrations/
+│   └── templates/trust/
+│       ├── dashboard.html
+│       ├── shifts.html
+│       └── approvals.html
+│
+├── admin_panel/                      ← Platform admin views
+│   ├── views.py
+│   ├── urls.py
+│   ├── apps.py
+│   ├── migrations/
+│   └── templates/admin_panel/
+│       ├── overview.html
+│       ├── users.html
+│       └── trusts.html
+│
+└── media/                            ← User-uploaded files (created at runtime)
+    ├── documents/
+    └── avatars/
+```
+
+---
+
+## Files to KEEP vs DELETE
+
+### ✅ KEEP ALL of the above.
+
+### ❌ DELETE / DO NOT COMMIT these:
+| Path | Reason |
+|------|--------|
+| `db.sqlite3` | Development database — regenerate via migrations |
+| `.env` | Contains secrets — never commit |
+| `media/` | User uploads — serve from object storage in production |
+| `staticfiles/` | Generated by `collectstatic` — do not commit |
+| `__pycache__/` | Python bytecode cache — auto-generated |
+| `*.pyc` | Compiled Python files |
+| `.venv/` or `venv/` | Virtual environment — not part of codebase |
+
+The `.gitignore` already excludes all of the above.
+
+---
+
+## Quick Start
+
+### 1. Clone / place the project
+```bash
+# If using git:
+git clone <your-repo-url> medicare_uk
+cd medicare_uk
+
+# Or just navigate to the project root:
+cd /path/to/medicare_uk
+```
+
+### 2. Create a virtual environment
+```bash
+# Create venv (Python 3.10+ recommended)
+python3 -m venv .venv
+
+# Activate it
+# macOS / Linux:
+source .venv/bin/activate
+# Windows:
+.venv\Scripts\activate
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure environment variables
+```bash
+cp .env.example .env
+# Open .env and edit:
+#   SECRET_KEY=<generate a real one>
+#   DEBUG=True
+#   ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+Generate a secret key:
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+### 5. Run database migrations
+```bash
+python manage.py migrate
+```
+
+### 6. Seed sample data (optional but recommended for dev)
+```bash
+python manage.py seed_data
+```
+This creates three ready-to-use accounts:
+| Username  | Password  | Role   |
+|-----------|-----------|--------|
+| admin     | admin123  | Platform Admin |
+| agency1   | agency123 | Agency Staff   |
+| trust1    | trust123  | NHS Trust      |
+
+### 7. Collect static files (for production only)
+```bash
+python manage.py collectstatic
+```
+
+### 8. Start the development server
+```bash
+python manage.py runserver
+```
+
+Visit: **http://127.0.0.1:8000/**
+
+---
+
+## URL Reference
+
+| URL | Description |
+|-----|-------------|
+| `/accounts/login/` | Login page |
+| `/accounts/register/` | Register new account |
+| `/dashboard/` | Role-based dashboard |
+| `/shifts/` | Available shifts list |
+| `/shifts/create/` | Post a new shift |
+| `/workers/` | Worker roster |
+| `/workers/add/` | Add new worker |
+| `/compliance/` | Compliance overview |
+| `/trust/dashboard/` | NHS Trust dashboard |
+| `/trust/approvals/` | Approve / reject assignments |
+| `/platform/overview/` | Admin platform overview |
+| `/admin/` | Django admin panel |
+
+---
+
+## Roles
+
+| Role | Access |
+|------|--------|
+| **Agency** | Dashboard, Available Shifts, Assignments, Workers, Compliance |
+| **Trust** | Trust Dashboard, Shift Management, Post Shifts, Approvals |
+| **Admin** | Platform Overview, User Management, Trust Management + Django admin |
+
+---
+
+## Production Checklist
+
+- [ ] Set `DEBUG=False` in `.env`
+- [ ] Set strong `SECRET_KEY`
+- [ ] Set `ALLOWED_HOSTS` to your domain
+- [ ] Switch `DATABASES` to PostgreSQL
+- [ ] Configure media storage (AWS S3 / Azure Blob)
+- [ ] Run `collectstatic` and serve via WhiteNoise / CDN
+- [ ] Set up gunicorn + nginx
+- [ ] Enable HTTPS / SSL

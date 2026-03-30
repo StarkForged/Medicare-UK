@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% block title %}Compliance{% endblock %}
+{% block page_title %}Compliance & Documents{% endblock %}
+{% block nav_compliance %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Compliance Overview</h1>
+    <p>Track document validity for all workers on your roster</p>
+  </div>
+</div>
+
+{% if expired %}
+<div class="alert-banner alert-danger" style="margin-bottom:16px;">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  <strong>{{ expired.count }} expired document{{ expired.count|pluralize }}</strong> require immediate attention
+</div>
+{% endif %}
+{% if expiring %}
+<div class="alert-banner alert-warning" style="margin-bottom:16px;">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+  <strong>{{ expiring.count }} document{{ expiring.count|pluralize }}</strong> expiring within 30 days
+</div>
+{% endif %}
+
+{% for worker in workers %}
+{% if worker.documents.all %}
+<div class="card" style="margin-bottom:14px;">
+  <div class="card-hd">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="staff-ava" style="background:var(--teal-light);color:var(--teal-text);">{{ worker.get_initials }}</div>
+      <div>
+        <div style="font-weight:600;">{{ worker.get_full_name }}</div>
+        <div style="font-size:12px;color:var(--text3);">{{ worker.role }} · Band {{ worker.nhs_band }}</div>
+      </div>
+    </div>
+    <a href="{% url 'compliance:document_add' worker.pk %}" class="btn btn-ghost btn-xs">+ Upload Doc</a>
+  </div>
+  <div class="card-pad">
+    {% for doc in worker.documents.all %}
+    <div class="doc-row">
+      <div class="doc-icon" style="background:var(--{% if doc.status == 'valid' %}green{% elif doc.status == 'expiring' %}amber{% else %}red{% endif %}-light);">
+        <svg viewBox="0 0 24 24" fill="var(--{% if doc.status == 'valid' %}green{% elif doc.status == 'expiring' %}amber{% else %}red{% endif %}-text)"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>
+      </div>
+      <div class="doc-info">
+        <div class="doc-name">{{ doc.title }}</div>
+        <div class="doc-meta">{{ doc.get_doc_type_display }}{% if doc.issued_date %} · Issued {{ doc.issued_date|date:"d M Y" }}{% endif %}</div>
+      </div>
+      <div style="text-align:right;">
+        {% if doc.expiry_date %}<div class="doc-expiry {{ doc.status }}">Expires {{ doc.expiry_date|date:"d M Y" }}</div>{% endif %}
+        <span class="badge b-{{ doc.status }}" style="margin-top:3px;">{{ doc.get_status_display }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% empty %}
+<div class="card">
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.38 0-2.55-2.07-4.62-4.62-4.62-1.46 0-2.76.67-3.63 1.72L8 3.5 6.25 1.72C5.38.67 4.08 0 2.62 0 .07 0-2 2.07 2 4.62c0 .5.11.94.18 1.38H0v13c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6z"/></svg>
+    <h3>No compliance data</h3>
+    <p>Add workers and upload their documents to track compliance</p>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

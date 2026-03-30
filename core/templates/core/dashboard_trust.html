@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% block title %}Trust Dashboard{% endblock %}
+{% block page_title %}Trust Dashboard{% endblock %}
+{% block nav_trust_dashboard %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>NHS Trust Overview</h1>
+    <p>Manage your staffing requests and approvals</p>
+  </div>
+  <a href="{% url 'shifts:create' %}" class="btn btn-primary">
+    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    Post a Shift
+  </a>
+</div>
+
+<div class="stats-row">
+  <div class="stat">
+    <div class="stat-label">Open Shifts</div>
+    <div class="stat-val" style="color:var(--amber);">{{ open_shifts }}</div>
+    <div class="stat-sub">Awaiting fill</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Pending Approvals</div>
+    <div class="stat-val" style="color:var(--blue);">{{ pending_approvals }}</div>
+    <div class="stat-sub">Require your action</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Filled Shifts</div>
+    <div class="stat-val" style="color:var(--green);">{{ filled_shifts }}</div>
+    <div class="stat-sub">This month</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Compliance Rate</div>
+    <div class="stat-val" style="color:var(--teal);">98%</div>
+    <div class="stat-sub">Workers verified</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-hd">
+    <span class="card-title">Pending Approvals</span>
+    <a href="{% url 'trust:approvals' %}" class="btn btn-ghost btn-xs">View all</a>
+  </div>
+  <div class="card-pad">
+    {% if pending_approvals %}
+    <p style="color:var(--text3);font-size:13px;">You have <strong style="color:var(--amber-text);">{{ pending_approvals }}</strong> assignments awaiting approval.</p>
+    <a href="{% url 'trust:approvals' %}" class="btn btn-primary" style="margin-top:12px;">Review Approvals →</a>
+    {% else %}
+    <div class="empty-state" style="padding:32px 20px;">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      <h3>All caught up!</h3>
+      <p>No pending approvals at this time</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

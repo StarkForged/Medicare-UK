@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% block title %}Available Shifts{% endblock %}
+{% block page_title %}Available Shifts{% endblock %}
+{% block nav_shifts %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Available Shifts</h1>
+    <p>{{ shifts.count }} open shift{{ shifts.count|pluralize }} from NHS Trusts</p>
+  </div>
+</div>
+
+<div class="card">
+  {% if shifts %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th>Trust</th>
+        <th>Date & Time</th>
+        <th>Hours</th>
+        <th>Pay Rate</th>
+        <th>Skills Required</th>
+        <th>Urgency</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for shift in shifts %}
+      <tr>
+        <td>
+          <div class="role-cell">{{ shift.role }}</div>
+          <div class="role-dept">Band {{ shift.nhs_band }} · {{ shift.department }}</div>
+        </td>
+
+        <td style="font-weight:500;">{{ shift.trust.name }}</td>
+
+        <td>
+          <div style="font-weight:500;">{{ shift.date|date:"D d M Y" }}</div>
+          <div style="font-size:12px;color:var(--text3);">
+            {{ shift.start_time|time:"H:i" }} – {{ shift.end_time|time:"H:i" }}
+          </div>
+        </td>
+
+        <td style="font-weight:600;">{{ shift.get_duration_hours }}h</td>
+
+        <td style="font-weight:600;color:var(--teal-text);">£{{ shift.pay_rate }}/hr</td>
+
+        <td>
+          {# BUG FIX: `.split` is not a Django template filter.
+             We added get_skills_list() to the model instead. #}
+          {% for skill in shift.get_skills_list %}
+            <span class="skill-pill">{{ skill }}</span>
+          {% endfor %}
+        </td>
+
+        <td>
+          {% if shift.urgency == 'high' %}
+            <span class="badge b-urgent">🔴 Urgent</span>
+          {% elif shift.urgency == 'medium' %}
+            <span class="badge b-expiring">⚡ Medium</span>
+          {% else %}
+            <span class="badge b-available">Low</span>
+          {% endif %}
+        </td>
+
+        <td>
+          <a href="{% url 'shifts:assign' shift.pk %}" class="btn btn-primary btn-xs">Assign →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+  <div class="empty-state">
+    <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+    <h3>No open shifts</h3>
+    <p>New shifts posted by NHS Trusts will appear here</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
